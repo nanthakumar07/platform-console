@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .console-panel {
+    @apply bg-white border border-gray-200 rounded-lg shadow-sm;
+  }
+  
+  .console-header {
+    @apply bg-gray-50 border-b border-gray-200 px-4 py-3;
+  }
+  
+  .console-button {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background;
+  }
+  
+  .console-button-primary {
+    @apply console-button bg-primary-600 text-white hover:bg-primary-700;
+  }
+  
+  .console-button-secondary {
+    @apply console-button bg-gray-100 text-gray-900 hover:bg-gray-200;
+  }
+  
+  .console-input {
+    @apply flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  
+  .console-sidebar {
+    @apply bg-gray-50 border-r border-gray-200 w-64 flex-shrink-0;
+  }
+  
+  .console-main {
+    @apply flex-1 overflow-hidden;
+  }
+}

@@ -1,0 +1,172 @@
+services:
+  # Infrastructure Services
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: platform
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: platform123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nats:
+    image: nats:2.10-alpine
+    ports:
+      - "4223:4222"
+      - "8223:8222"
+    command: ["-js", "-m", "8222"]
+    volumes:
+      - nats_data:/data
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9201:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  # Application Services
+  metadata-service:
+    build:
+      context: ./services/metadata-service
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://platform:platform123@postgres:5432/platform
+      - REDIS_URL=redis://redis:6379
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    volumes:
+      - ./services/metadata-service:/app
+      - /app/node_modules
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      # - NODE_ENV=development
+      # - DATABASE_URL=postgresql://platform:platform123@postgres:5432/platform
+      # - REDIS_URL=redis://redis:6379
+      # - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://platform:platform123@postgres:5432/platform
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}          # ✅ loaded from .env file
+      - JWT_ISSUER=${JWT_ISSUER:-platform-auth-service}
+      - JWT_AUDIENCE=${JWT_AUDIENCE:-platform-api}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/auth-service:/app
+      - /app/node_modules
+
+  data-access-layer:
+    build:
+      context: ./services/data-access-layer
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://platform:platform123@postgres:5432/platform
+      - REDIS_URL=redis://redis:6379
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+    volumes:
+      - ./services/data-access-layer:/app
+      - /app/node_modules
+
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - METADATA_SERVICE_URL=http://metadata-service:3001
+      - AUTH_SERVICE_URL=http://auth-service:3002
+      - DAL_SERVICE_URL=http://data-access-layer:3003
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - metadata-service
+      - auth-service
+      - data-access-layer
+    volumes:
+      - ./services/api-gateway:/app
+      - /app/node_modules
+
+  # Frontend Applications
+  builder-ui:
+    build:
+      context: ./frontend/builder-ui
+      dockerfile: Dockerfile
+    ports:
+      - "3100:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:3000
+    volumes:
+      - ./frontend/builder-ui:/app
+      - /app/node_modules
+
+  console-ui:
+    build:
+      context: ./frontend/console-ui
+      dockerfile: Dockerfile
+    ports:
+      - "3101:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:3000
+    volumes:
+      - ./frontend/console-ui:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  redis_data:
+  nats_data:
+  es_data:
