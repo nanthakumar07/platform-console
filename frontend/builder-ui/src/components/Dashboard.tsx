@@ -44,13 +44,18 @@ export const Dashboard: React.FC = () => {
       taskId,
       'Dashboard Data Refresh',
       async () => {
-        const user = authService.getUser();
-        const dashboardStats = await metadataService.getDashboardStats(user?.tenantId);
-        setStats(dashboardStats);
-        
-        // Update cache
-        const cacheKey = `dashboard_stats_${user?.tenantId || 'default'}`;
-        dashboardCache.set(cacheKey, dashboardStats);
+        try {
+          const user = authService.getUser();
+          const dashboardStats = await metadataService.getDashboardStats(user?.tenantId);
+          setStats(dashboardStats);
+          
+          // Update cache
+          const cacheKey = `dashboard_stats_${user?.tenantId || 'default'}`;
+          dashboardCache.set(cacheKey, dashboardStats);
+        } catch (error) {
+          console.error('Background refresh failed:', error);
+          // Don't update stats on error to avoid breaking the UI
+        }
       },
       60000 // Refresh every minute
     );
@@ -261,7 +266,7 @@ export const Dashboard: React.FC = () => {
                     Recent Activity
                   </dt>
                   <dd className="text-lg font-semibold text-gray-900">
-                    {stats.recentActivity.length}
+                    {stats.recentActivity?.length || 0}
                   </dd>
                 </dl>
               </div>
@@ -334,10 +339,10 @@ export const Dashboard: React.FC = () => {
           </h3>
           <div className="flow-root">
             <ul className="-mb-8">
-              {stats.recentActivity.map((activity, index) => (
+              {(stats.recentActivity || []).map((activity, index) => (
                 <li key={activity.id}>
                   <div className="relative pb-8">
-                    {index !== stats.recentActivity.length - 1 && (
+                    {index !== (stats.recentActivity?.length || 0) - 1 && (
                       <span
                         className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
                         aria-hidden="true"
@@ -383,7 +388,7 @@ export const Dashboard: React.FC = () => {
             </ul>
           </div>
           
-          {stats.recentActivity.length === 0 && (
+          {(stats.recentActivity?.length || 0) === 0 && (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

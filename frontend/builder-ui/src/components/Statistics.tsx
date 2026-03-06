@@ -283,8 +283,8 @@ export const Statistics: React.FC = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Objects</dt>
-                  <dd className="text-lg font-semibold text-gray-900">{statistics.summary.totalObjects}</dd>
-                  <dd className="text-xs text-green-600">+{statistics.summary.growthRate.objects}%</dd>
+                  <dd className="text-lg font-semibold text-gray-900">{statistics?.summary?.totalObjects ?? 0}</dd>
+                  <dd className="text-xs text-green-600">+{statistics?.summary?.growthRate?.objects ?? 0}%</dd>
                 </dl>
               </div>
             </div>
@@ -304,8 +304,8 @@ export const Statistics: React.FC = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Fields</dt>
-                  <dd className="text-lg font-semibold text-gray-900">{statistics.summary.totalFields}</dd>
-                  <dd className="text-xs text-green-600">+{statistics.summary.growthRate.fields}%</dd>
+                  <dd className="text-lg font-semibold text-gray-900">{statistics?.summary?.totalFields ?? 0}</dd>
+                  <dd className="text-xs text-green-600">+{statistics?.summary?.growthRate?.fields ?? 0}%</dd>
                 </dl>
               </div>
             </div>
@@ -325,8 +325,8 @@ export const Statistics: React.FC = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Relations</dt>
-                  <dd className="text-lg font-semibold text-gray-900">{statistics.summary.totalRelations}</dd>
-                  <dd className="text-xs text-green-600">+{statistics.summary.growthRate.relations}%</dd>
+                  <dd className="text-lg font-semibold text-gray-900">{statistics?.summary?.totalRelations ?? 0}</dd>
+                  <dd className="text-xs text-green-600">+{statistics?.summary?.growthRate?.relations ?? 0}%</dd>
                 </dl>
               </div>
             </div>
@@ -346,7 +346,7 @@ export const Statistics: React.FC = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Storage Used</dt>
-                  <dd className="text-lg font-semibold text-gray-900">{Math.round(statistics.storageMetrics.estimatedStorageUsage.total)} KB</dd>
+                  <dd className="text-lg font-semibold text-gray-900">{Math.round(statistics?.storageMetrics?.estimatedStorageUsage?.total ?? 0)} KB</dd>
                   <dd className="text-xs text-gray-500">Est. total</dd>
                 </dl>
               </div>
@@ -359,7 +359,7 @@ export const Statistics: React.FC = () => {
       <div className="bg-white shadow rounded-lg p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">System Health</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {Object.entries(statistics.performanceIndicators.systemHealth).map(([key, value]) => (
+          {Object.entries(statistics?.performanceIndicators?.systemHealth ?? {}).map(([key, value]) => (
             <div key={key} className="text-center">
               <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center ${
                 value === 'excellent' ? 'bg-green-100' :
@@ -386,7 +386,7 @@ export const Statistics: React.FC = () => {
       <div className="bg-white shadow rounded-lg p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Growth Trends (Last 30 Days)</h3>
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={statistics.growthTrends}>
+          <LineChart data={statistics?.growthTrends ?? []}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
             <YAxis />
@@ -407,7 +407,7 @@ export const Statistics: React.FC = () => {
       <div className="bg-white shadow rounded-lg p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Most Popular Objects</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={statistics.usageAnalytics.mostPopularObjects}>
+          <BarChart data={statistics?.usageAnalytics?.mostPopularObjects ?? []}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="objectName" />
             <YAxis />
@@ -426,7 +426,7 @@ export const Statistics: React.FC = () => {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={statistics.usageAnalytics.fieldTypesDistribution}
+                data={statistics?.usageAnalytics?.fieldTypesDistribution ?? []}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -435,7 +435,7 @@ export const Statistics: React.FC = () => {
                 fill="#8884d8"
                 dataKey="count"
               >
-                {statistics.usageAnalytics.fieldTypesDistribution.map((entry, index) => (
+                {(statistics?.usageAnalytics?.fieldTypesDistribution ?? []).map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -449,7 +449,7 @@ export const Statistics: React.FC = () => {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={statistics.usageAnalytics.relationTypesDistribution}
+                data={statistics?.usageAnalytics?.relationTypesDistribution ?? []}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -458,7 +458,7 @@ export const Statistics: React.FC = () => {
                 fill="#8884d8"
                 dataKey="count"
               >
-                {statistics.usageAnalytics.relationTypesDistribution.map((entry, index) => (
+                {(statistics?.usageAnalytics?.relationTypesDistribution ?? []).map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -478,7 +478,7 @@ export const Statistics: React.FC = () => {
           <div>
             <div className="text-center">
               <div className="text-2xl font-bold text-indigo-600">
-                {statistics.storageMetrics.estimatedStorageUsage.objects} KB
+                {statistics?.storageMetrics?.estimatedStorageUsage?.objects ?? 0} KB
               </div>
               <p className="text-sm text-gray-500">Objects Storage</p>
             </div>
@@ -486,7 +486,7 @@ export const Statistics: React.FC = () => {
           <div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
-                {statistics.storageMetrics.estimatedStorageUsage.fields} KB
+                {statistics?.storageMetrics?.estimatedStorageUsage?.fields ?? 0} KB
               </div>
               <p className="text-sm text-gray-500">Fields Storage</p>
             </div>
@@ -494,7 +494,7 @@ export const Statistics: React.FC = () => {
           <div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">
-                {statistics.storageMetrics.estimatedStorageUsage.relations} KB
+                {statistics?.storageMetrics?.estimatedStorageUsage?.relations ?? 0} KB
               </div>
               <p className="text-sm text-gray-500">Relations Storage</p>
             </div>
@@ -504,9 +504,9 @@ export const Statistics: React.FC = () => {
         <div className="mt-6">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={[
-              { name: 'Objects', value: statistics.storageMetrics.estimatedStorageUsage.objects },
-              { name: 'Fields', value: statistics.storageMetrics.estimatedStorageUsage.fields },
-              { name: 'Relations', value: statistics.storageMetrics.estimatedStorageUsage.relations }
+              { name: 'Objects', value: statistics?.storageMetrics?.estimatedStorageUsage?.objects ?? 0 },
+              { name: 'Fields', value: statistics?.storageMetrics?.estimatedStorageUsage?.fields ?? 0 },
+              { name: 'Relations', value: statistics?.storageMetrics?.estimatedStorageUsage?.relations ?? 0 }
             ]}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
@@ -523,11 +523,11 @@ export const Statistics: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="border-l-4 border-indigo-500 pl-4">
             <p className="text-sm text-gray-500">Average Fields per Object</p>
-            <p className="text-xl font-semibold text-gray-900">{statistics.storageMetrics.averageFieldsPerObject}</p>
+            <p className="text-xl font-semibold text-gray-900">{statistics?.storageMetrics?.averageFieldsPerObject ?? 0}</p>
           </div>
           <div className="border-l-4 border-purple-500 pl-4">
             <p className="text-sm text-gray-500">Average Relations per Object</p>
-            <p className="text-xl font-semibold text-gray-900">{statistics.storageMetrics.averageRelationsPerObject}</p>
+            <p className="text-xl font-semibold text-gray-900">{statistics?.storageMetrics?.averageRelationsPerObject ?? 0}</p>
           </div>
         </div>
       </div>
@@ -558,7 +558,7 @@ export const Statistics: React.FC = () => {
         </div>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart 
-            data={statistics.growthTrends.slice(-(selectedTimeRange === '7d' ? 7 : selectedTimeRange === '30d' ? 30 : 90))}
+            data={(statistics?.growthTrends ?? []).slice(-(selectedTimeRange === '7d' ? 7 : selectedTimeRange === '30d' ? 30 : 90))}
             onClick={handleChartClick}
           >
             <CartesianGrid strokeDasharray="3 3" />
@@ -631,7 +631,7 @@ export const Statistics: React.FC = () => {
           <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
-                data={statistics.usageAnalytics.fieldTypesDistribution}
+                data={statistics?.usageAnalytics?.fieldTypesDistribution ?? []}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -640,7 +640,7 @@ export const Statistics: React.FC = () => {
                 fill="#8884d8"
                 dataKey="count"
               >
-                {statistics.usageAnalytics.fieldTypesDistribution.map((entry, index) => (
+                {(statistics?.usageAnalytics?.fieldTypesDistribution ?? []).map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
                     fill={COLORS[index % COLORS.length]}
@@ -770,7 +770,7 @@ export const Statistics: React.FC = () => {
       <div className="bg-white shadow rounded-lg p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Combined Metrics Overview</h3>
         <ResponsiveContainer width="100%" height={400}>
-          <ComposedChart data={statistics.growthTrends.slice(-30)}>
+          <ComposedChart data={(statistics?.growthTrends ?? []).slice(-30)}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
             <YAxis yAxisId="left" />

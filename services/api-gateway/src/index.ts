@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import "dotenv/config";
 import fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
@@ -67,23 +68,7 @@ const metadataService = new MetadataService(config);
 // });
 
 server.register(cors, {
-  origin: async (origin) => {
-    if (!origin) return true; // allow server-to-server
-    
-    // ✅ Per-tenant origin validation
-    // Extract tenantId from subdomain or default to checking known origins
-    const defaultAllowed = (process.env.ALLOWED_ORIGINS || 'http://localhost:3100,http://localhost:3101,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:5178,http://localhost:5179').split(',');
-    if (defaultAllowed.includes(origin)) return true;
-    
-    // For tenant subdomains, validate against tenant's registered origins
-    // This replaces the TODO comment
-    try {
-      const tenantOrigins = await metadataService.getAllowedOrigins(origin);
-      return tenantOrigins;
-    } catch {
-      return false;
-    }
-  },
+  origin: true, // Allow all origins for development
   credentials: true,
 });
 
@@ -256,6 +241,41 @@ server.post('/auth/logout', async (request, reply) => {
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
+});
+
+server.get('/auth/verify', async (request, reply) => {
+  try {
+    const response = await fetch(`${config.authService}/auth/verify`, {
+      method: 'GET',
+      headers: {
+        'Authorization': request.headers.authorization || '',
+      },
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      return reply.status(response.status).send(data);
+    }
+    
+    return reply.send(data);
+  } catch (error) {
+    request.log.error(error);
+    return reply.status(500).send({
+      error: 'Internal Server Error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Proxy all metadata-service routes under /api/v1
+import proxy from '@fastify/http-proxy';
+
+server.register(proxy, {
+  upstream: config.metadataService,
+  prefix: '/api/v1',
+  rewritePrefix: '/api/v1',
+  http2: false,
 });
 
 // Dashboard endpoints

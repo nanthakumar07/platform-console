@@ -44,7 +44,7 @@ class NotificationService {
     if (!token) {
       return;
     }
-    const wsUrl = `${(window as any).REACT_APP_WS_URL || 'ws://localhost:3000'}/ws/team-activity?token=${token}`;
+    const wsUrl = `ws://localhost:5003/ws/team-activity?token=${token}`;
     
     try {
       this.ws = new WebSocket(wsUrl);

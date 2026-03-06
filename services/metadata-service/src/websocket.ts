@@ -11,7 +11,7 @@ export class WebSocketManager {
     // Create WebSocket server
     this.wss = new Server({ 
       server: this.server.server,
-      path: '/ws'
+      path: '/ws/team-activity'
     });
 
     this.wss.on('connection', (ws: any, _req: IncomingMessage) => {

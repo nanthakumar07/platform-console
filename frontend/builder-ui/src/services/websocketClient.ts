@@ -311,7 +311,7 @@ export const useDashboardWebSocket = (dashboardId: string, token?: string) => {
   const [activity, setActivity] = useState<any[]>([]);
 
   const ws = useWebSocket({
-    url: (typeof window !== 'undefined' && (window as any).__ENV?.REACT_APP_WS_URL) || 'ws://localhost:3000/ws/team-activity',
+    url: 'ws://localhost:5003/ws/team-activity',
     token,
     onMessage: (message) => {
       switch (message.type) {

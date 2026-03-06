@@ -9,12 +9,12 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:5001',
         changeOrigin: true,
         secure: false
       },
       '/ws': {
-        target: 'ws://localhost:3000',
+        target: 'ws://localhost:5001',
         ws: true,
         changeOrigin: true
       }

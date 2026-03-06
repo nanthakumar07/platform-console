@@ -22,7 +22,7 @@ class TeamActivityService {
     const token = authService.getToken();
     if (!token) return;
 
-    const wsUrl = `${(import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace('http://', 'ws://').replace('https://', 'w://')}/ws/team-activity?token=${token}`;
+    const wsUrl = `ws://localhost:5003/ws/team-activity?token=${token}`;
     
     try {
       this.ws = new WebSocket(wsUrl);
